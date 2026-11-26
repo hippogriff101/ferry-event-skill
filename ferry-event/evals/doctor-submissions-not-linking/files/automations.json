@@ -1,0 +1,60 @@
+{
+ "automations": [
+  {
+   "name": "Ferry: Link Submission to User",
+   "state": "on",
+   "trigger": {
+    "type": "recordCreated",
+    "table": "YSWS Project Submission"
+   },
+   "actions": [
+    {
+     "type": "customScript",
+     "script": "// Ferry: link a new submission to its User row and copy identity fields onto it.\n// Input variable: recordId (the trigger record's ID).\nconst { recordId } = input.config();\nconst SUBS = base.getTable('YSWS Project Submission');\nconst USERS = base.getTable('User');\nconst PROJECTS = base.getTable('Hackatime Projects');\n\nconst byName = (table, name) => table.fields.find((f) => f.name === name) || null;\nconst linkTo = (table, target) =>\n  table.fields.find(\n    (f) => f.type === 'multipleRecordLinks' && f.options && f.options.linkedTableId === target.id,\n  ) || null;\n\nconst subUser = linkTo(SUBS, USERS);\nconst subProjects = linkTo(SUBS, PROJECTS);\nconst projUser = linkTo(PROJECTS, USERS);\nconst subToken = byName(SUBS, 'Auth Token');\nconst userToken = byName(USERS, 'Auth Token');\nconst userEmail = byName(USERS, 'Email');\nconst errorField = byName(SUBS, 'Automation - Error');\nif (!subUser) throw new Error('YSWS Project Submission has no link field to the User table.');\n\nconst TEXT_TYPES = ['singleLineText', 'multilineText', 'email', 'url', 'phoneNumber'];\nconst COPY = [\n  'First Name', 'Last Name', 'Email', 'Birthday', 'Address (Line 1)', 'Address (Line 2)',\n  'City', 'State / Province', 'ZIP / Postal Code', 'Country',\n]\n  .map((n) => [byName(SUBS, n), byName(USERS, n)])\n  .filter(([s, u]) => s && u && !s.isComputed);\n\nconst sleep = (ms) => new Promise((r) => setTimeout(r, ms));\n\nasync function findUserId(rec) {\n  const linked = rec.getCellValue(subUser) || [];\n  if (linked.length === 1) return linked[0].id; // Fillout's User prefetch already linked it\n  const token = subToken ? (rec.getCellValueAsString(subToken) || '').trim() : '';\n  if (token && userToken) {\n    const q = await USERS.selectRecordsAsync({ fields: [userToken] });\n    const m = q.records.find((r) => (r.getCellValueAsString(userToken) || '').trim() === token);\n    if (m) return m.id;\n  }\n  if (subProjects && projUser) {\n    const ids = new Set();\n    for (const l of rec.getCellValue(subProjects) || []) {\n      const p = await PROJECTS.selectRecordAsync(l.id, { fields: [projUser] });\n      for (const u of (p && p.getCellValue(projUser)) || []) ids.add(u.id);\n    }\n    if (ids.size === 1) return [...ids][0];\n  }\n  return null;\n}\n\nasync function writeError(id, message) {\n  if (errorField) await SUBS.updateRecordAsync(id, { [errorField.id]: message });\n  else throw new Error(message);\n}\n\nlet rec = null;\nlet userId = null;\nfor (let i = 0; i < 5 && !userId; i++) {\n  rec = await SUBS.selectRecordAsync(recordId);\n  if (!rec) throw new Error('Submission not found: ' + recordId);\n  userId = await findUserId(rec);\n  if (!userId) await sleep(2000); // Fillout may still be writing links\n}\n\nif (!userId) {\n  await writeError(\n    rec.id,\n    'Ferry: could not identify the User (no User link, no matching Auth Token, and no single owner of the picked Hackatime projects). Check the Fillout Auth Token hidden field.',\n  );\n} else {\n  const user = await USERS.selectRecordAsync(userId);\n  const fields = { [subUser.id]: [{ id: userId }] };\n  for (const [s, u] of COPY) {\n    let v = TEXT_TYPES.includes(s.type) ? user.getCellValueAsString(u) : user.getCellValue(u);\n    if (v && typeof v === 'object' && !Array.isArray(v) && v.name) v = { name: v.name };\n    if (v !== null && v !== undefined && v !== '') fields[s.id] = v;\n  }\n  await SUBS.updateRecordAsync(rec.id, fields);\n\n  const email = userEmail ? (user.getCellValueAsString(userEmail) || '').trim().toLowerCase() : '';\n  if (email) {\n    const all = await USERS.selectRecordsAsync({ fields: [userEmail] });\n    const same = all.records.filter(\n      (r) => (r.getCellValueAsString(userEmail) || '').trim().toLowerCase() === email,\n    );\n    if (same.length > 1) {\n      await writeError(rec.id, 'Ferry duplicate check: another User row shares this email. Review before approving.');\n    }\n  }\n  console.log('Linked submission ' + rec.id + ' to User ' + userId);\n}\n"
+    }
+   ],
+   "recentRuns": [
+    {
+     "status": "failed",
+     "error": "ReferenceError: setTimeout is not defined"
+    },
+    {
+     "status": "failed",
+     "error": "ReferenceError: setTimeout is not defined"
+    },
+    {
+     "status": "failed",
+     "error": "ReferenceError: setTimeout is not defined"
+    }
+   ]
+  },
+  {
+   "name": "Ferry: Submitted Hackatime Hours",
+   "state": "on",
+   "trigger": {
+    "type": "recordCreated",
+    "table": "YSWS Project Submission"
+   },
+   "actions": [
+    {
+     "type": "customScript",
+     "script": "// Ferry: fill Submitted Hackatime Projects / Hours from the submitter's own Hackatime token.\n// Hours are the overlap-merged wall-clock total (heartbeat spans), not a sum of per-project totals,\n// so time logged to two projects at once is only counted once.\n// Input variable: recordId (the trigger record's ID).\nconst { recordId } = input.config();\nconst SUBS = base.getTable('YSWS Project Submission');\nconst USERS = base.getTable('User');\nconst PROJECTS = base.getTable('Hackatime Projects');\n\nconst byName = (table, name) => table.fields.find((f) => f.name === name) || null;\nconst linkTo = (table, target) =>\n  table.fields.find(\n    (f) => f.type === 'multipleRecordLinks' && f.options && f.options.linkedTableId === target.id,\n  ) || null;\n\nconst subUser = linkTo(SUBS, USERS);\nconst subProjects = linkTo(SUBS, PROJECTS);\nconst errorField = byName(SUBS, 'Automation - Error');\nconst outProjects = byName(SUBS, 'Submitted Hackatime Projects');\nconst outHours = byName(SUBS, 'Submitted Hackatime Hours');\n// Optional Unified YSWS fields: filled only if they exist and are still empty.\nconst justNames = byName(SUBS, 'Justification - Hackatime Project Name(s) + Date Range(s)');\nconst justId = byName(SUBS, 'Justification - Submitter Hackatime ID');\nconst overrideHours = byName(SUBS, 'Optional - Override Hours Spent');\n\nasync function fail(message) {\n  if (errorField) await SUBS.updateRecordAsync(recordId, { [errorField.id]: 'Hackatime hours: ' + message });\n  else throw new Error(message);\n}\n\nasync function startDate() {\n  let t;\n  try { t = base.getTable('YSWS Config'); } catch (e) { return ''; }\n  const key = byName(t, 'Key');\n  const value = byName(t, 'Value');\n  if (!key || !value) return '';\n  const q = await t.selectRecordsAsync({ fields: [key, value] });\n  const row = q.records.find((r) => r.getCellValueAsString(key).trim() === 'Start Date');\n  return row ? row.getCellValueAsString(value).trim() : '';\n}\n\nasync function main() {\n  if (!subUser || !subProjects) return fail('submission table needs link fields to User and Hackatime Projects.');\n  const rec = await SUBS.selectRecordAsync(recordId);\n  if (!rec) return fail('submission not found.');\n  const userLink = rec.getCellValue(subUser) || [];\n  if (userLink.length === 0) return fail('no linked User yet.');\n  const user = await USERS.selectRecordAsync(userLink[0].id);\n  const token = (user.getCellValueAsString('Hackatime Token') || '').trim();\n  if (!token) return fail('linked User has no Hackatime Token.');\n  const names = (rec.getCellValue(subProjects) || []).map((p) => p.name).filter(Boolean);\n  if (names.length === 0) return fail('no Hackatime projects picked.');\n\n  const start = await startDate();\n  const qs = (o) =>\n    Object.entries(o)\n      .filter(([, v]) => v)\n      .map(([k, v]) => k + '=' + encodeURIComponent(v))\n      .join('&');\n  const get = async (path, params) => {\n    const res = await fetch('https://hackatime.hackclub.com/api/v1/users/my/' + path + '?' + qs(params), {\n      headers: { Authorization: 'Bearer ' + token },\n    });\n    if (!res.ok) throw new Error(path + ' returned ' + res.status + ': ' + (await res.text()).slice(0, 200));\n    return res.json();\n  };\n  const filter = { filter_by_project: names.join(','), start_date: start };\n\n  const stats = await get('stats', { ...filter, features: 'projects' });\n  const per = ((stats.data && stats.data.projects) || []).filter((p) => names.includes(p.name));\n  const projectsText = per.map((p) => p.name + ' (' + (p.total_seconds / 3600).toFixed(1) + 'h)').join(', ');\n\n  const spans = ((await get('heartbeats/spans', filter)).spans || [])\n    .map((s) => [Number(s.start_time), Number(s.end_time)])\n    .filter(([a, b]) => b > a)\n    .sort((x, y) => x[0] - y[0]);\n  let total = 0;\n  let curStart = null;\n  let curEnd = null;\n  for (const [a, b] of spans) {\n    if (curEnd === null || a > curEnd) {\n      if (curEnd !== null) total += curEnd - curStart;\n      curStart = a;\n      curEnd = b;\n    } else if (b > curEnd) {\n      curEnd = b;\n    }\n  }\n  if (curEnd !== null) total += curEnd - curStart;\n  const hours = Math.round((total / 3600) * 100) / 100;\n\n  const fields = {};\n  if (outProjects) fields[outProjects.id] = projectsText;\n  if (outHours) fields[outHours.id] = hours;\n  if (justNames && !rec.getCellValueAsString(justNames)) fields[justNames.id] = names.join(', ');\n  if (justId && !rec.getCellValueAsString(justId)) fields[justId.id] = user.getCellValueAsString('Hackatime User ID');\n  if (overrideHours && rec.getCellValue(overrideHours) === null) fields[overrideHours.id] = hours;\n  await SUBS.updateRecordAsync(recordId, fields);\n  output.set('hours', hours);\n}\n\ntry {\n  await main();\n} catch (e) {\n  await fail(String((e && e.message) || e));\n}\n"
+    }
+   ],
+   "recentRuns": [
+    {
+     "status": "success",
+     "note": "wrote Automation - Error: Hackatime hours: no linked User yet."
+    },
+    {
+     "status": "success",
+     "note": "wrote Automation - Error: Hackatime hours: no linked User yet."
+    },
+    {
+     "status": "success",
+     "note": "wrote Automation - Error: Hackatime hours: no linked User yet."
+    }
+   ]
+  }
+ ]
+}

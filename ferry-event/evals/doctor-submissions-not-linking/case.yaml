@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: doctor-submissions-not-linking
+expected_outcome: |
+  A diagnosis that leads with the most likely cause (Fillout Auth Token hidden field using Placeholder, shown by empty Auth Tokens), and also flags the setTimeout crash in the link script, the hours automation's record-created trigger, the misnamed 'Hackatime Projects 2' link and the wrong Hackatime User ID type; proposes fixes but changes nothing without approval.
+context:
+  scaffold_script: place-files.sh

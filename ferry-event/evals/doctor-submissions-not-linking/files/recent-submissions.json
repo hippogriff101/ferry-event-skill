@@ -1,0 +1,131 @@
+{
+ "records": [
+  {
+   "id": "rec000",
+   "Project Name": "Project 0",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec001",
+   "Project Name": "Project 1",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec002",
+   "Project Name": "Project 2",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec003",
+   "Project Name": "Project 3",
+   "Auth Token": "tok3",
+   "User": [
+    {
+     "id": "recU3"
+    }
+   ],
+   "Hackatime Projects": [
+    {
+     "id": "recP3",
+     "name": "proj3"
+    }
+   ],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec004",
+   "Project Name": "Project 4",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec005",
+   "Project Name": "Project 5",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec006",
+   "Project Name": "Project 6",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec007",
+   "Project Name": "Project 7",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec008",
+   "Project Name": "Project 8",
+   "Auth Token": "tok8",
+   "User": [
+    {
+     "id": "recU8"
+    }
+   ],
+   "Hackatime Projects": [
+    {
+     "id": "recP8",
+     "name": "proj8"
+    }
+   ],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec009",
+   "Project Name": "Project 9",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec010",
+   "Project Name": "Project 10",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  },
+  {
+   "id": "rec011",
+   "Project Name": "Project 11",
+   "Auth Token": "",
+   "User": [],
+   "Hackatime Projects": [],
+   "Submitted Hackatime Hours": null,
+   "Automation - Error": "Hackatime hours: no linked User yet."
+  }
+ ],
+ "note": "12 most recent submissions, exported from Airtable"
+}

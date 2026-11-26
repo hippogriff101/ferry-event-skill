@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: no-connector-nextjs
+expected_outcome: |
+  A complete setup path that works without the Airtable MCP: a schema checklist or the bundled setup script; Next.js route app/submit/[[...path]]/route.ts with callbacks /submit/hca and /submit/hackatime; automations as manual steps with scripts; Fillout Default value; secrets entered by the person, never in chat.

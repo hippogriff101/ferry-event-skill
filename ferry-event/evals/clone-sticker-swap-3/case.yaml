@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: clone-sticker-swap-3
+expected_outcome: |
+  Copies only the Ferry schema and Ferry automations into the new base after a preview and approval; offers the old base's extra submission fields; says the review/Slack/fraud-check automations are not copied; reminds to reconnect the duplicated Fillout form to the new base and update FERRY_AIRTABLE_BASE_ID and the start date.
+context:
+  scaffold_script: place-files.sh

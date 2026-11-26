@@ -1,0 +1,72 @@
+{
+  "_about": "Everything Ferry 0.4.x and the two Ferry automations need in Airtable. Names must match exactly: Ferry writes by field name. 'who' says which part of the flow writes the field. 'optional' fields are used only when present.",
+  "ferryVersion": "0.4.0",
+  "tables": [
+    {
+      "name": "User",
+      "primary": { "name": "Slack ID", "type": "singleLineText" },
+      "fields": [
+        { "name": "First Name", "type": "singleLineText", "who": "ferry" },
+        { "name": "Last Name", "type": "singleLineText", "who": "ferry" },
+        { "name": "Email", "type": "email", "who": "ferry" },
+        { "name": "Birthday", "type": "date", "who": "ferry", "options": { "dateFormat": { "name": "iso" } } },
+        { "name": "Address (Line 1)", "type": "singleLineText", "who": "ferry" },
+        { "name": "Address (Line 2)", "type": "singleLineText", "who": "ferry" },
+        { "name": "City", "type": "singleLineText", "who": "ferry" },
+        { "name": "State / Province", "type": "singleLineText", "who": "ferry" },
+        { "name": "ZIP / Postal Code", "type": "singleLineText", "who": "ferry" },
+        { "name": "Country", "type": "singleLineText", "who": "ferry", "alsoOk": ["singleSelect"] },
+        { "name": "Hackatime User ID", "type": "number", "who": "ferry", "options": { "precision": 0 } },
+        { "name": "Hackatime Token", "type": "multilineText", "who": "ferry", "description": "Stored by Ferry. Do not edit or share." },
+        { "name": "Auth Token", "type": "singleLineText", "who": "ferry", "description": "Minted by Ferry; Fillout's linking key." },
+        { "name": "Hackatime Projects", "type": "multipleRecordLinks", "who": "ferry", "linksTo": "Hackatime Projects", "note": "Inverse of Hackatime Projects.User. Must be named exactly 'Hackatime Projects' (Airtable may auto-name it 'Hackatime Projects 2' or similar)." }
+      ],
+      "views": [{ "name": "Fillout (DON'T TOUCH)", "type": "grid", "note": "Fillout's User prefetch. MCP and the Web API cannot create views." }]
+    },
+    {
+      "name": "Hackatime Projects",
+      "primary": { "name": "Name", "type": "singleLineText" },
+      "fields": [
+        { "name": "Time", "type": "duration", "who": "ferry", "options": { "durationFormat": "h:mm" } },
+        { "name": "User", "type": "multipleRecordLinks", "who": "ferry", "linksTo": "User" },
+        { "name": "Auth Token (from User)", "type": "multipleLookupValues", "who": "fillout", "lookup": { "via": "User", "field": "Auth Token" }, "note": "Fillout's project picker filters on this. Lookups can't be made through the Web API; may need a manual step." }
+      ]
+    },
+    {
+      "name": "YSWS Project Submission",
+      "primary": { "name": "Code URL", "type": "url" },
+      "fields": [
+        { "name": "Project Name", "type": "singleLineText", "who": "fillout" },
+        { "name": "Playable URL", "type": "url", "who": "fillout" },
+        { "name": "Description", "type": "multilineText", "who": "fillout" },
+        { "name": "Screenshot", "type": "multipleAttachments", "who": "fillout" },
+        { "name": "How did you hear about this?", "type": "multilineText", "who": "fillout" },
+        { "name": "What are we doing well?", "type": "multilineText", "who": "fillout" },
+        { "name": "How can we improve?", "type": "multilineText", "who": "fillout" },
+        { "name": "Auth Token", "type": "singleLineText", "who": "fillout" },
+        { "name": "User", "type": "multipleRecordLinks", "who": "automation", "linksTo": "User", "matchByLink": true },
+        { "name": "Hackatime Projects", "type": "multipleRecordLinks", "who": "fillout", "linksTo": "Hackatime Projects", "matchByLink": true, "note": "Any link to Hackatime Projects counts, whatever its name (e.g. 'Hackatime Project(s) Used'). Don't add a second." },
+        { "name": "Automation - Error", "type": "multilineText", "who": "automation" },
+        { "name": "Submitted Hackatime Projects", "type": "multilineText", "who": "automation", "hackatimeOnly": true },
+        { "name": "Submitted Hackatime Hours", "type": "number", "who": "automation", "options": { "precision": 2 }, "hackatimeOnly": true },
+        { "name": "First Name", "type": "singleLineText", "who": "automation", "optional": true },
+        { "name": "Last Name", "type": "singleLineText", "who": "automation", "optional": true },
+        { "name": "Email", "type": "email", "who": "automation", "optional": true },
+        { "name": "Justification - Hackatime Project Name(s) + Date Range(s)", "type": "multilineText", "who": "automation", "optional": true },
+        { "name": "Justification - Submitter Hackatime ID", "type": "singleLineText", "who": "automation", "optional": true },
+        { "name": "Optional - Override Hours Spent", "type": "number", "who": "automation", "optional": true }
+      ]
+    },
+    {
+      "name": "YSWS Config",
+      "primary": { "name": "Key", "type": "singleLineText" },
+      "fields": [{ "name": "Value", "type": "singleLineText", "who": "ferry" }],
+      "rows": [{ "Key": "Start Date", "Value": "<YYYY-MM-DD>" }]
+    }
+  ],
+  "automations": [
+    { "name": "Ferry: Link Submission to User", "script": "scripts/link-submission-to-user.js", "table": "YSWS Project Submission", "trigger": "record created" },
+    { "name": "Ferry: Submitted Hackatime Hours", "script": "scripts/submitted-hackatime-hours.js", "table": "YSWS Project Submission", "trigger": "record matches conditions: User link not empty AND Hackatime Projects link not empty", "hackatimeOnly": true },
+    { "name": "Ferry: Resync Hours on Edit", "script": "scripts/submitted-hackatime-hours.js", "table": "YSWS Project Submission", "trigger": "record updated, watching the Hackatime Projects link field", "hackatimeOnly": true, "optIn": true }
+  ]
+}

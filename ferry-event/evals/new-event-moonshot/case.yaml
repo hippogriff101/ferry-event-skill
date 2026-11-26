@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: new-event-moonshot
+expected_outcome: |
+  A preview of the exact Airtable tables/fields/automations to create with Ferry's exact names, asked for approval before writing; website and Fillout given as instructions with real URLs (/api/submit paths for a static Vercel site); Fillout hidden field uses Default value not Placeholder; no secrets requested.
+context:
+  scaffold_script: place-files.sh

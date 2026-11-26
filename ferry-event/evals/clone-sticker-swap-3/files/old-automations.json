@@ -1,0 +1,24 @@
+{
+ "automations": [
+  {
+   "name": "Ferry: Link Submission to User",
+   "state": "on"
+  },
+  {
+   "name": "Ferry: Submitted Hackatime Hours",
+   "state": "on"
+  },
+  {
+   "name": "Review 1: email on approval",
+   "state": "on"
+  },
+  {
+   "name": "Fraud check: send to reviewers",
+   "state": "on"
+  },
+  {
+   "name": "Slack: post new submission",
+   "state": "on"
+  }
+ ]
+}

@@ -1,0 +1,258 @@
+{
+ "tables": [
+  {
+   "id": "tbl0",
+   "name": "User",
+   "primaryFieldId": "p0",
+   "fields": [
+    {
+     "id": "p0",
+     "name": "Slack ID",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl00",
+     "name": "First Name",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl01",
+     "name": "Last Name",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl02",
+     "name": "Email",
+     "type": "email"
+    },
+    {
+     "id": "ftbl03",
+     "name": "Birthday",
+     "type": "date"
+    },
+    {
+     "id": "ftbl04",
+     "name": "Address (Line 1)",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl05",
+     "name": "Address (Line 2)",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl06",
+     "name": "City",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl07",
+     "name": "State / Province",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl08",
+     "name": "ZIP / Postal Code",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl09",
+     "name": "Country",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl010",
+     "name": "Hackatime User ID",
+     "type": "number"
+    },
+    {
+     "id": "ftbl011",
+     "name": "Hackatime Token",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl012",
+     "name": "Auth Token",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl013",
+     "name": "Hackatime Projects",
+     "type": "multipleRecordLinks",
+     "options": {
+      "linkedTableId": "tbl1"
+     }
+    }
+   ],
+   "views": [
+    {
+     "name": "Fillout (DON'T TOUCH)"
+    }
+   ]
+  },
+  {
+   "id": "tbl1",
+   "name": "Hackatime Projects",
+   "primaryFieldId": "p1",
+   "fields": [
+    {
+     "id": "p1",
+     "name": "Name",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl10",
+     "name": "Time",
+     "type": "duration"
+    },
+    {
+     "id": "ftbl11",
+     "name": "User",
+     "type": "multipleRecordLinks",
+     "options": {
+      "linkedTableId": "tbl0"
+     }
+    },
+    {
+     "id": "ftbl12",
+     "name": "Auth Token (from User)",
+     "type": "multipleLookupValues"
+    }
+   ],
+   "views": []
+  },
+  {
+   "id": "tbl2",
+   "name": "YSWS Project Submission",
+   "primaryFieldId": "p2",
+   "fields": [
+    {
+     "id": "p2",
+     "name": "Code URL",
+     "type": "url"
+    },
+    {
+     "id": "ftbl20",
+     "name": "Project Name",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl21",
+     "name": "Playable URL",
+     "type": "url"
+    },
+    {
+     "id": "ftbl22",
+     "name": "Description",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl23",
+     "name": "Screenshot",
+     "type": "multipleAttachments"
+    },
+    {
+     "id": "ftbl24",
+     "name": "How did you hear about this?",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl25",
+     "name": "What are we doing well?",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl26",
+     "name": "How can we improve?",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl27",
+     "name": "Auth Token",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl28",
+     "name": "User",
+     "type": "multipleRecordLinks",
+     "options": {
+      "linkedTableId": "tbl0"
+     }
+    },
+    {
+     "id": "ftbl29",
+     "name": "Hackatime Projects",
+     "type": "multipleRecordLinks",
+     "options": {
+      "linkedTableId": "tbl1"
+     }
+    },
+    {
+     "id": "ftbl210",
+     "name": "Automation - Error",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl211",
+     "name": "Submitted Hackatime Projects",
+     "type": "multilineText"
+    },
+    {
+     "id": "ftbl212",
+     "name": "Submitted Hackatime Hours",
+     "type": "number"
+    },
+    {
+     "id": "x1",
+     "name": "What did you sell?",
+     "type": "multilineText"
+    },
+    {
+     "id": "x2",
+     "name": "Status",
+     "type": "singleSelect"
+    },
+    {
+     "id": "x3",
+     "name": "Reviewer Notes",
+     "type": "multilineText"
+    },
+    {
+     "id": "x4",
+     "name": "Optional - Override Hours Spent",
+     "type": "number"
+    }
+   ],
+   "views": []
+  },
+  {
+   "id": "tbl3",
+   "name": "YSWS Config",
+   "primaryFieldId": "p3",
+   "fields": [
+    {
+     "id": "p3",
+     "name": "Key",
+     "type": "singleLineText"
+    },
+    {
+     "id": "ftbl30",
+     "name": "Value",
+     "type": "singleLineText"
+    }
+   ],
+   "views": []
+  },
+  {
+   "id": "tblShop",
+   "name": "Shop",
+   "fields": [
+    {
+     "id": "s",
+     "name": "Item",
+     "type": "singleLineText"
+    }
+   ]
+  }
+ ]
+}
